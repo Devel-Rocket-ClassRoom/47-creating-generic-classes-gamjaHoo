@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net.Quic;
-using System.Text;
 
 namespace GenericQueue
 {
@@ -9,44 +6,51 @@ namespace GenericQueue
     {
         private T[] items;
         private int _capacity;
+
+        private int head = 0;
+        private int tail = 0;
         public int _count = 0;
+
+        public int Count => _count;
         public bool IsFull => _count == _capacity;
         public bool IsEmpty => _count == 0;
-        private int currentOut = 0;
+
         public SimpleQueue(int capacity)
-        {  
-            _capacity = capacity; 
+        {
+            _capacity = capacity;
             items = new T[capacity];
         }
+
         public void EnQueue(T item)
         {
-            if(IsFull)
+            if (IsFull)
             {
                 Console.WriteLine("큐가 가득 찼습니다.");
                 return;
             }
-            items[_count++] = item;
+
+            items[tail] = item;
+            tail = (tail + 1) % _capacity;
+            _count++;
         }
+
         public T DeQueue()
         {
-            T itemOut;
             if (IsEmpty)
             {
                 Console.WriteLine("큐가 비어있습니다.");
                 return default(T);
             }
-            if(currentOut == _capacity - 1)
-            {
-                currentOut = 0;
-                itemOut = items[_capacity - 1];
-                items[_capacity - 1] = default(T);
-                _count--;
-                return itemOut;
-            }
+
+            T item = items[head];
+            items[head] = default(T);
+
+            head = (head + 1) % _capacity;
             _count--;
-            itemOut = items[currentOut++];
-            return itemOut;
+
+            return item;
         }
+
         public T Peek()
         {
             if (IsEmpty)
@@ -54,7 +58,8 @@ namespace GenericQueue
                 Console.WriteLine("큐가 비어있습니다.");
                 return default(T);
             }
-            return items[currentOut];
+
+            return items[head];
         }
     }
 }
